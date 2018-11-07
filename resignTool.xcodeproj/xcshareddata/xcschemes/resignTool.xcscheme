@@ -63,7 +63,15 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/zhy/Desktop/ZHY/resignTool/embedded.mobileprovision"
+            argument = "-m /Users/hengyi.zhang/Documents/github/resignTool/embedded.mobileprovision"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-h"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-i /Users/hengyi.zhang/Documents/github/resignTool/MerchantAideForJNH.ipa"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

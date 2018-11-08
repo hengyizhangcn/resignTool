@@ -19,20 +19,6 @@ let help =
 "       if the version is not set, and 0.0.1 will be automatically added to the origin version.\n" +
 "  Please contact if you have some special demmands."
 
-
-/// execute the command
-///
-/// - Parameters:
-///   - launchPath: the full path of the command
-///   - arguments: arguments
-func runCommandWithoutResult(launchPath: String, arguments: [String], pipe: Pipe?) {
-    let task = Process()
-    task.launchPath = launchPath
-    task.arguments = arguments
-    task.standardOutput = pipe
-    task.launch()
-}
-
 /// execute the command and get the result
 ///
 /// - Parameters:
@@ -43,9 +29,15 @@ func runCommand(launchPath: String, arguments: [String]) -> Data {
     let pipe = Pipe()
     let file = pipe.fileHandleForReading
     
-    runCommandWithoutResult(launchPath: launchPath, arguments: arguments, pipe: pipe)
+    let task = Process()
+    task.launchPath = launchPath
+    task.arguments = arguments
+    task.standardOutput = pipe
+    task.launch()
     
     let data = file.readDataToEndOfFile()
+    
+    task.terminate()
     return data
 }
 
@@ -73,6 +65,7 @@ func enumeratePayloadApp() -> String {
 /// print help
 func showHelp() {
     print(help)
+    terminate()
 }
 
 /// terminate process
@@ -82,7 +75,7 @@ func terminate() {
 
 let arguments = CommandLine.arguments
 
-var appPath: String?
+var ipaPath: String?
 var mobileprovisionPath: String?
 var newVersion: String?
 
@@ -99,7 +92,7 @@ for i in 1..<arguments.count {
             break
         case "-i":
             if arguments.count > i {
-                appPath = arguments[i + 1]
+                ipaPath = arguments[i + 1]
             }
             break
         case "-v":
@@ -118,7 +111,7 @@ for i in 1..<arguments.count {
 }
 
 //check user's input
-if appPath == nil {
+if ipaPath == nil {
     print("The path of .ipa file doesnot exist, please point it out")
     terminate()
 } else if mobileprovisionPath == nil &&  newVersion == nil{
@@ -127,23 +120,57 @@ if appPath == nil {
 }
 
 //clear payload directory
-runCommandWithoutResult(launchPath: "/bin/rm", arguments: ["-rf", "Payload"], pipe: nil)
-runCommandWithoutResult(launchPath: "/bin/rm", arguments: ["-rf", "tmp_entitlements.plist"], pipe: nil)
+runCommand(launchPath: "/bin/rm", arguments: ["-rf", "Payload"])
+runCommand(launchPath: "/bin/rm", arguments: ["-rf", "entitlements.plist"])
 
 //unzip .ipa file
-runCommandWithoutResult(launchPath: "/usr/bin/unzip", arguments: [appPath!], pipe: nil)
+runCommand(launchPath: "/usr/bin/unzip", arguments: [ipaPath!])
 
 //codesign -d --entitlements - SmartHeda.app
 
 //abstract entitlement
-runCommandWithoutResult(launchPath: "/usr/bin/codesign", arguments: ["-d", "--entitlements", "tmp_entitlements.plist", enumeratePayloadApp()], pipe: nil)
+let appPath = enumeratePayloadApp()
+runCommand(launchPath: "/usr/bin/codesign", arguments: ["-d", "--entitlements", "entitlements.plist", appPath])
+
+let manager = FileManager.default
+let plistFilePath = manager.currentDirectoryPath + "/entitlements.plist"
+
+do {
+    let fileUrl = URL.init(fileURLWithPath: plistFilePath)
+    var entitleData = try Data.init(contentsOf: fileUrl)
+    entitleData.removeSubrange(0..<8) //前8个字节为未知无用字节，需截除
+    
+    try entitleData.write(to: fileUrl)
+} catch {
+    print(error)
+}
+
+var TeamName: String?
 
 if mobileprovisionPath != nil {
     let mobileprovisionData = runCommand(launchPath: "/usr/bin/security", arguments: ["cms", "-D", "-i", mobileprovisionPath!])
     
     let datasourceDictionary = try PropertyListSerialization.propertyList(from: mobileprovisionData, options: [], format: nil)
     
-    print(datasourceDictionary)
+    if let dict = datasourceDictionary as? Dictionary<String, Any> {
+        TeamName = dict["TeamName"] as? String
+    }
 }
 
-//print(arguments)
+//codesign -fs 'iPhone Distribution: ***’  --entitlements  ./heda_entitlements.plist SmartHeda.app
+
+let teamNameCombinedStr = "iPhone Distribution: " + TeamName!
+
+runCommand(launchPath: "/usr/bin/codesign", arguments: ["-fs", teamNameCombinedStr, "--entitlements", plistFilePath, appPath])
+
+//codesign -vv -d SmartHeda.app
+runCommand(launchPath: "/usr/bin/codesign", arguments: ["-vv", "-d", appPath])
+
+//repacked app
+//zip -r SmartHeda.ipa Payload/
+let ipaName = URL.init(fileURLWithPath: ipaPath!).lastPathComponent
+
+try manager.createDirectory(atPath: manager.currentDirectoryPath + "/new App/", withIntermediateDirectories: true, attributes: [:])
+runCommand(launchPath: "/usr/bin/zip", arguments: ["-r", manager.currentDirectoryPath + "/new App/" + ipaName , manager.currentDirectoryPath + "/Payload/"])
+
+print("Done!")

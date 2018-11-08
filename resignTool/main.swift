@@ -25,6 +25,7 @@ let help =
 ///   - launchPath: the full path of the command
 ///   - arguments: arguments
 /// - Returns: command execute result
+@discardableResult
 func runCommand(launchPath: String, arguments: [String]) -> Data {
     let pipe = Pipe()
     let file = pipe.fileHandleForReading
@@ -174,3 +175,11 @@ try manager.createDirectory(atPath: manager.currentDirectoryPath + "/new App/", 
 runCommand(launchPath: "/usr/bin/zip", arguments: ["-r", manager.currentDirectoryPath + "/new App/" + ipaName , manager.currentDirectoryPath + "/Payload/"])
 
 print("Done!")
+
+
+/*
+ 待办:
+ 1.删除中间文件：entitlements.plist, Payload文件夹
+ 2.-v功能未实现
+ *
+ /

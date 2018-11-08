@@ -156,9 +156,14 @@ if mobileprovisionPath != nil {
     if let dict = datasourceDictionary as? Dictionary<String, Any> {
         TeamName = dict["TeamName"] as? String
     }
+    
+    //replace embedded.mobileprovision
+    runCommand(launchPath: "/bin/cp", arguments: [mobileprovisionPath!, appPath + "/embedded.mobileprovision"])
 }
 
-//codesign -fs 'iPhone Distribution: ***’  --entitlements  ./heda_entitlements.plist SmartHeda.app
+
+
+//resign
 
 let teamNameCombinedStr = "iPhone Distribution: " + TeamName!
 
@@ -179,7 +184,7 @@ print("Done!")
 
 /*
  待办:
+ 0.替换embedded.mobileprovision文件
  1.删除中间文件：entitlements.plist, Payload文件夹
  2.-v功能未实现
- *
- /
+ */

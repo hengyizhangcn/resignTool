@@ -161,6 +161,8 @@ if mobileprovisionPath != nil {
     runCommand(launchPath: "/bin/cp", arguments: [mobileprovisionPath!, appPath + "/embedded.mobileprovision"])
 }
 
+//Remove old CodeSignature
+//runCommand(launchPath: "/bin/rm", arguments: ["-rf", appPath + "_CodeSignature"])
 
 
 //resign
@@ -180,11 +182,11 @@ try manager.createDirectory(atPath: manager.currentDirectoryPath + "/new App/", 
 runCommand(launchPath: "/usr/bin/zip", arguments: ["-r", manager.currentDirectoryPath + "/new App/" + ipaName , manager.currentDirectoryPath + "/Payload/"])
 
 print("Done!")
-
-
 /*
  待办:
- 0.替换embedded.mobileprovision文件
+ 0.Remove old CodeSignature
+ https://stackoverflow.com/questions/6896029/re-sign-ipa-iphone
+ rm -r "Payload/Application.app/_CodeSignature" "Payload/Application.app/CodeResources" 2> /dev/null | true
  1.删除中间文件：entitlements.plist, Payload文件夹
  2.-v功能未实现
  */

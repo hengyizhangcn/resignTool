@@ -16,8 +16,12 @@ let help =
 "  -i   the path of .ipa file.\n" +
 "  -m   the path of .mobileprovision file.\n" +
 "  -v   the new version of the app.\n" +
-"       if the version is not set, and 0.0.1 will be automatically added to the origin version.\n" +
+"       if the version is not set, and 1 will be automatically added to the last of version components which separated by charater '.'.\n" +
 "  Please contact if you have some special demmands."
+
+var ipaPath: String?
+var mobileprovisionPath: String?
+var newVersion: String?
 
 /// execute the command and get the result
 ///
@@ -63,6 +67,48 @@ func enumeratePayloadApp() -> String {
     return ""
 }
 
+func configNewVersion(_ appPath: String) {
+    
+    //        let dict =
+    let plistPath = appPath + "/Info.plist"
+    let plistXML = FileManager.default.contents(atPath: plistPath)!
+    do {
+        //read plist file to dictionary
+        var plistDict = try PropertyListSerialization.propertyList(from: plistXML, options: .mutableContainersAndLeaves, format: nil) as! [String: Any]
+        
+        if newVersion == nil,
+            let shortVersion = plistDict["CFBundleShortVersionString"] as? String{
+            
+            var versionArray = shortVersion.components(separatedBy: ".")
+            if versionArray.count > 0,
+                let lastComponent = versionArray.last {
+                versionArray[versionArray.count-1] = String(Int(lastComponent)! + 1)
+                
+                newVersion = versionArray.joined(separator: ".")
+            }
+        }
+        
+        if newVersion == nil {
+            newVersion = "1.0.0"
+        }
+        
+        plistDict["CFBundleShortVersionString"] = newVersion!
+        plistDict["CFBundleVersion"] = newVersion!
+        
+        if let plistOutputStream = OutputStream.init(toFileAtPath: plistPath, append: false) {
+            
+            //should keep the outputstream open
+            plistOutputStream.schedule(in: RunLoop.current, forMode: .default)
+            plistOutputStream.open()
+            
+            //write the new plist content to file
+            PropertyListSerialization.writePropertyList(plistDict, to: plistOutputStream, format: PropertyListSerialization.PropertyListFormat.xml, options: 0, error: nil)
+        }
+    } catch {
+        print(error)
+    }
+}
+
 /// print help
 func showHelp() {
     print(help)
@@ -75,10 +121,6 @@ func terminate() {
 }
 
 let arguments = CommandLine.arguments
-
-var ipaPath: String?
-var mobileprovisionPath: String?
-var newVersion: String?
 
 //analysize user's input
 for i in 1..<arguments.count {
@@ -115,9 +157,6 @@ for i in 1..<arguments.count {
 if ipaPath == nil {
     print("The path of .ipa file doesnot exist, please point it out")
     terminate()
-} else if mobileprovisionPath == nil &&  newVersion == nil{
-    print("I don't know what to do, Commander! Confusing....")
-    terminate()
 }
 
 //clear payload directory
@@ -146,8 +185,14 @@ do {
     print(error)
 }
 
-var TeamName: String?
+//set the app version
+configNewVersion(appPath)
 
+//Remove old CodeSignature, can be ignored
+//runCommand(launchPath: "/bin/rm", arguments: ["-rf", appPath + "_CodeSignature"])
+
+
+var TeamName: String?
 if mobileprovisionPath != nil {
     let mobileprovisionData = runCommand(launchPath: "/usr/bin/security", arguments: ["cms", "-D", "-i", mobileprovisionPath!])
     
@@ -159,14 +204,19 @@ if mobileprovisionPath != nil {
     
     //replace embedded.mobileprovision
     runCommand(launchPath: "/bin/cp", arguments: [mobileprovisionPath!, appPath + "/embedded.mobileprovision"])
+    
+} else {
+    //if appPath + "/embedded.mobileprovision" doesnot exist, read team name from the app
+    let mobileprovisionData = runCommand(launchPath: "/usr/bin/security", arguments: ["cms", "-D", "-i", appPath + "/embedded.mobileprovision"])
+    
+    let datasourceDictionary = try PropertyListSerialization.propertyList(from: mobileprovisionData, options: [], format: nil)
+    
+    if let dict = datasourceDictionary as? Dictionary<String, Any> {
+        TeamName = dict["TeamName"] as? String
+    }
 }
 
-//Remove old CodeSignature
-//runCommand(launchPath: "/bin/rm", arguments: ["-rf", appPath + "_CodeSignature"])
-
-
 //resign
-
 let teamNameCombinedStr = "iPhone Distribution: " + TeamName!
 
 runCommand(launchPath: "/usr/bin/codesign", arguments: ["-fs", teamNameCombinedStr, "--entitlements", plistFilePath, appPath])
@@ -179,14 +229,10 @@ runCommand(launchPath: "/usr/bin/codesign", arguments: ["-vv", "-d", appPath])
 let ipaName = URL.init(fileURLWithPath: ipaPath!).lastPathComponent
 
 try manager.createDirectory(atPath: manager.currentDirectoryPath + "/new App/", withIntermediateDirectories: true, attributes: [:])
-runCommand(launchPath: "/usr/bin/zip", arguments: ["-r", manager.currentDirectoryPath + "/new App/" + ipaName , manager.currentDirectoryPath + "/Payload/"])
+runCommand(launchPath: "/usr/bin/zip", arguments: ["-r", manager.currentDirectoryPath + "/new App/" + ipaName , "Payload/"])
+
+//remove middle files and directionary
+runCommand(launchPath: "/bin/rm", arguments: ["-rf", "Payload"])
+runCommand(launchPath: "/bin/rm", arguments: ["-rf", "entitlements.plist"])
 
 print("Done!")
-/*
- 待办:
- 0.Remove old CodeSignature
- https://stackoverflow.com/questions/6896029/re-sign-ipa-iphone
- rm -r "Payload/Application.app/_CodeSignature" "Payload/Application.app/CodeResources" 2> /dev/null | true
- 1.删除中间文件：entitlements.plist, Payload文件夹
- 2.-v功能未实现
- */

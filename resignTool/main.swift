@@ -67,6 +67,9 @@ func enumeratePayloadApp() -> String {
     return ""
 }
 
+/// config app version
+///
+/// - Parameter appPath: the path of the app
 func configNewVersion(_ appPath: String) {
     
     //        let dict =
@@ -236,3 +239,5 @@ runCommand(launchPath: "/bin/rm", arguments: ["-rf", "Payload"])
 runCommand(launchPath: "/bin/rm", arguments: ["-rf", "entitlements.plist"])
 
 print("Done!")
+
+//2018/11/9 finished

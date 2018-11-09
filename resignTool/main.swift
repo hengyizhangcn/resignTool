@@ -85,7 +85,11 @@ func configNewVersion(_ appPath: String) {
             var versionArray = shortVersion.components(separatedBy: ".")
             if versionArray.count > 0,
                 let lastComponent = versionArray.last {
-                versionArray[versionArray.count-1] = String(Int(lastComponent)! + 1)
+                if Int(lastComponent) == nil {
+                    versionArray[versionArray.count-1] = "1";
+                } else {
+                    versionArray[versionArray.count-1] = String(Int(lastComponent)! + 1)
+                }
                 
                 newVersion = versionArray.joined(separator: ".")
             }

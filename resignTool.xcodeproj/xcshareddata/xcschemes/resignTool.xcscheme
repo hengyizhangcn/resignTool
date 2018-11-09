@@ -68,14 +68,14 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-v 3.5.4"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-h"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-i /Users/hengyi.zhang/Documents/github/resignTool/MerchantAideForJNH.ipa"
+            argument = "-i /Users/hengyi.zhang/Desktop/yunzhuAPIlocal/SmartCommunityForShushu.ipa"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

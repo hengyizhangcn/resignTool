@@ -10,7 +10,7 @@ import Foundation
 
 //
 let help =
-"  version: 1.0\n" +
+"  version: 1.1\n" +
 "  usage: resignTool [-h] [-i <path>] [-m <path>] [-v <version>]\n" +
 "  -h   this help.\n" +
 "  -i   the path of .ipa file.\n" +

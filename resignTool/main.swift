@@ -236,11 +236,12 @@ runCommand(launchPath: "/usr/bin/codesign", arguments: ["-vv", "-d", appPath])
 let ipaName = URL.init(fileURLWithPath: ipaPath!).lastPathComponent
 
 try manager.createDirectory(atPath: manager.currentDirectoryPath + "/new App/", withIntermediateDirectories: true, attributes: [:])
-runCommand(launchPath: "/usr/bin/zip", arguments: ["-r", manager.currentDirectoryPath + "/new App/" + ipaName , "Payload/"])
+runCommand(launchPath: "/usr/bin/zip", arguments: ["-r", manager.currentDirectoryPath + "/new App/" + ipaName , "Payload/", "AppThinning.plist"])
 
 //remove middle files and directionary
 runCommand(launchPath: "/bin/rm", arguments: ["-rf", "Payload"])
 runCommand(launchPath: "/bin/rm", arguments: ["-rf", "entitlements.plist"])
+runCommand(launchPath: "/bin/rm", arguments: ["-rf", "AppThinning.plist"]) //for thin if exists
 
 print("Done!")
 

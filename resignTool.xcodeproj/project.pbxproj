@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1ED3EEB5222F641E00019AFF /* ResignHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED3EEB4222F641E00019AFF /* ResignHelper.swift */; };
 		99B83E4A2191D4A1006091F0 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B83E492191D4A1006091F0 /* main.swift */; };
 /* End PBXBuildFile section */
 
@@ -23,6 +24,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1ED3EEB4222F641E00019AFF /* ResignHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResignHelper.swift; sourceTree = "<group>"; };
 		99B83E462191D4A1006091F0 /* resignTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = resignTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		99B83E492191D4A1006091F0 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -58,6 +60,7 @@
 			isa = PBXGroup;
 			children = (
 				99B83E492191D4A1006091F0 /* main.swift */,
+				1ED3EEB4222F641E00019AFF /* ResignHelper.swift */,
 			);
 			path = resignTool;
 			sourceTree = "<group>";
@@ -120,6 +123,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				99B83E4A2191D4A1006091F0 /* main.swift in Sources */,
+				1ED3EEB5222F641E00019AFF /* ResignHelper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -63,8 +63,8 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-m /Users/hengyi.zhang/Documents/github/resignTool/embedded.mobileprovision"
-            isEnabled = "NO">
+            argument = "-m /Users/hengyi.zhang/Desktop/Bulter&#x91cd;&#x7b7e;&#x540d;/Butler_distibution_2022.mobileprovision"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-v 3.5.4"
@@ -75,7 +75,11 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-i /Users/hengyi.zhang/Desktop/yunzhuAPIlocal/SmartCommunityForShushu.ipa"
+            argument = "-i /Users/hengyi.zhang/Desktop/Bulter&#x91cd;&#x7b7e;&#x540d;/Butler.ipa"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-callKit /Users/hengyi.zhang/Desktop/Bulter&#x91cd;&#x7b7e;&#x540d;/ButlerCallKit_Dis_2022.mobileprovision"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

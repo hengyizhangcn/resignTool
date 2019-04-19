@@ -6,6 +6,8 @@
 //  Copyright © 2018 zhy. All rights reserved.
 //
 
+//note: please to be sure that the the distribution certificate with private key be installed beforehand in local environment
+
 import Foundation
 
 //

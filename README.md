@@ -1,6 +1,8 @@
 # resignTool
 resign app command line tool
 
+## Please to be sure that the the distribution certificate with private key be installed beforehand in local environment!!
+
 This tool can be used to resign the ipa with new embeded mobileprovision, or just change the version of ipa.
 
 > There are four options:  
